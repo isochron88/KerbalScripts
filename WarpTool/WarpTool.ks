@@ -2,14 +2,11 @@ CLEARSCREEN.
 CLEARVECDRAWS().
 CLEARGUIS().
 
-
-
-
 // Create a GUI window
-LOCAL guiTO IS GUI(400).
-LOCAL labelAutoTakeoff IS guiTO:ADDLABEL("<size=20><b>Auto takeoff?</b></size>").
-SET labelAutoTakeoff:STYLE:ALIGN TO "CENTER".
-SET labelAutoTakeoff:STYLE:HSTRETCH TO True. 
+LOCAL guiTO IS GUI(250).
+LOCAL labelWarpTool IS guiTO:ADDLABEL("<size=20><b>WARP TOOL</b></size>").
+SET labelWarpTool:STYLE:ALIGN TO "CENTER".
+SET labelWarpTool:STYLE:HSTRETCH TO True. 
 
 SET HoursPerDay TO KUniverse:HOURSPERDAY.  //6 or 24, depending on setting used on KSP main settings screen 
 //Autopilot settings
@@ -39,7 +36,7 @@ SET ButtonWarpYearsPlus:Style:HEIGHT TO 25.
 
 SET ButtonWarpYearsMinus:ONCLICK  TO { if TGTWarpYears > 0 {SET TGTWarpYears TO ROUND(TGTWarpYears) -1.} SET LabelWarpYears:TEXT TO  "<b>" + TGTWarpYears + "</b>".}.
 SET ButtonWarpYearsPlus:ONCLICK  TO { SET TGTWarpYears TO ROUND(TGTWarpYears) +1 . SET LabelWarpYears:TEXT TO  "<b>" + TGTWarpYears + "</b>".}.
-SET ButtonWarpYears:ONCLICK  TO { WARPTO(time:seconds + TGTWarpYears*426.08*HoursPerDay*60*60). SET TGTWarpYears TO 0. SET LabelWarpYears:TEXT TO  "<b>" + TGTWarpYears + "</b>".}.
+SET ButtonWarpYears:ONCLICK  TO { set kuniverse:timewarp:rate to 100000. WARPTO(time:seconds + TGTWarpYears*426.08*HoursPerDay*60*60). SET TGTWarpYears TO 0. SET LabelWarpYears:TEXT TO  "<b>" + TGTWarpYears + "</b>".}.
 
 
 SET LabelWarpYears:TEXT TO "". 
@@ -166,11 +163,22 @@ SET LabelWarpSecs:TEXT TO "".
 SET LabelWarpSecs:TEXT TO  "<b>" + TGTWarpSecs + "</b>".
 
 //------------------------------------------------------------------------------------------------------------------------------
-LOCAL autoTOYes TO guiTO:ADDBUTTON("Yes").
-LOCAL autoTONo  TO guiTO:ADDBUTTON("No").
+LOCAL autoTOGo TO guiTO:ADDBUTTON("Go").
+LOCAL autoTOStop  TO guiTO:ADDBUTTON("Stop").
+LOCAL autoTOClear  TO guiTO:ADDBUTTON("Clear").
+LOCAL autoTOClose  TO guiTO:ADDBUTTON("Close").
 guiTO:SHOW().
 set atdone to false.
-SET autoTOYes:ONCLICK TO { guiTO:hide.  set atdone to true. }.
-SET autoTONo:ONCLICK TO { guiTO:hide. wait until ship:altitude > 1000. set atdone to true. }.
+SET autoTOGo:ONCLICK TO {WARPTO(time:seconds + TGTWarpYears*426.08*HoursPerDay*60*60+TGTWarpDays*HoursPerDay*60*60+TGTWarpHours*60*60+
+								TGTWarpMins*60+TGTWarpSecs). SET TGTWarpYears to 0. SET TGTWarpDays to 0. SET TGTWarpHours to 0. SET TGTWarpMins to 0. SET TGTWarpSecs to 0.
+							 SET LabelWarpYears:TEXT TO  "<b>" + TGTWarpYears + "</b>". SET LabelWarpDays:TEXT TO  "<b>" + TGTWarpDays + "</b>".
+							 SET LabelWarpHours:TEXT TO  "<b>" + TGTWarpHours + "</b>". SET LabelWarpMins:TEXT TO  "<b>" + TGTWarpMins + "</b>".
+							 SET LabelWarpSecs:TEXT TO  "<b>" + TGTWarpSecs + "</b>".}.
+SET autoTOStop:ONCLICK TO  { kuniverse:timewarp:CANCELWARP().}.							 
+SET autoTOClear:ONCLICK TO { SET TGTWarpYears to 0. SET TGTWarpDays to 0. SET TGTWarpHours to 0. SET TGTWarpMins to 0. SET TGTWarpSecs to 0.
+							 SET LabelWarpYears:TEXT TO  "<b>" + TGTWarpYears + "</b>". SET LabelWarpDays:TEXT TO  "<b>" + TGTWarpDays + "</b>".
+							 SET LabelWarpHours:TEXT TO  "<b>" + TGTWarpHours + "</b>". SET LabelWarpMins:TEXT TO  "<b>" + TGTWarpMins + "</b>".
+							 SET LabelWarpSecs:TEXT TO  "<b>" + TGTWarpSecs + "</b>".}.
+SET autoTOClose:ONCLICK TO { guiTO:hide. set atdone to true. }.
 wait until atdone.
 //-------------------------------------------------------------------------------------
